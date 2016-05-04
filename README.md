@@ -1,5 +1,5 @@
 # plutaniumSmsServer
-Plutanium SMS Server is a daemon which connects to your USB 3G modem and Gmail and lets you forward your Gmail to SMS, and SMS to SMS, making your own smart SMS gateway. Your GSM modem can be hooked up on local or remote machine, or on Mikrotik router. Implemented as a linux daemon, written in Python.
+Plutanium SMS Server is a daemon which connects to your USB 3G modem and Gmail and lets you forward your Gmail to SMS, and SMS to SMS, making your own smart SMS gateway. Your GSM modem can be hooked up on local or remote machine, or on Mikrotik router. Implemented as a linux daemon, written in Python, tested on Debian and OS X.
 
 Only documentation is open sourced at the moment. If you are interested in the library let me know!
 
@@ -37,9 +37,13 @@ Very useful feature since GSM carriers don't offer redirecting SMS, unline call 
 ###Gmail2SMS + SMS redirect
 Just set up both. :-)
 
+## Getting started
+See documentation on https://github.com/babca/plutaniumSmsServer/blob/master/docs/docs.md
+
 ##Access GSM modem on a remote machine
-Going to have GSM modem hooked up to a different machine than the location you'll going to run the daemon on?
-Share serial port of the GSM modem over the network and create a virtual serial port at the daemons side.
+Going to have GSM modem hooked up to a different machine?
+Share the serial port of the GSM modem over the network and connect to it with socat command.
+Future versions will have this included.
 
 ###Access GSM modem on a Mikrotik
 http://babcuvpisecek.com/nezarazene/access-a-gsm-modem-connected-to-mikrotik-device-over-lan/
@@ -50,5 +54,6 @@ http://babcuvpisecek.com/nezarazene/access-a-gsm-modem-connected-to-mikrotik-dev
 * add webadmin
 * add more connectors
 * REST api
-* replace outcoming an incoming sms log files wit SQL database
+* replace outcoming an incoming sms log files with a SQL database
+* everyday self test
 
