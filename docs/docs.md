@@ -3,7 +3,7 @@ Plutanium SMS Server is a daemon which connects to your USB 3G modem and Gmail a
 
 Only documentation is open sourced at the moment. If you are interested in the library let me know!
 
-#Getting started
+# Getting started
 
 1. make you modem working over serial port
 2. test the port with screen
@@ -148,7 +148,7 @@ $ python quickstart.py --noauth_local_webserver
 
 need edit, todo: new location ~/.credentials/plutaniumSmsServerGmailApiCredentials.json
 
-### Test if PySerial library is working
+### test if PySerial library is working
 after setting then try to connect from Python. PySerial module must be installed first, see below.
 ```bash
 python -m serial.tools.miniterm /dev/ttyUSB0
@@ -166,8 +166,152 @@ If it fails to connect to /dev/ttyUSB2, then there is a problem with PySerial mo
 
 ### check setting file
 
-all settings here.
-
+<table>
+	<thead>
+		<tr>
+			<th> </th>
+			<th>values</th>
+			<th>default</th>
+			<tH>desc.</tH>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>GMAIL_POLLING_INTERVAL</td>
+			<td> </td>
+			<td>30</td>
+			<td> </td>
+		</tr>
+		<tr>
+			<td>GMAIL_QUERY</td>
+			<td> </td>
+			<td> label:inbox is:unread</td>
+			<td> label:inbox is:unread from:(mypersonal@email.com OR sms@mycompany.com)</td>
+		</tr>
+		<tr>
+			<td>LOG_FILE</td>
+			<td> </td>
+			<td> </td>
+			<td>main log</td>
+		</tr>
+		<tr>
+			<td>LOG_FILE_SMS</td>
+			<td> </td>
+			<td> </td>
+			<td>received/sent sms log</td>
+		</tr>
+		<tr>
+			<td>LOG_LEVEL_FOREGROUND</td>
+			<td> </td>
+			<td> </td>
+			<td>log level for the server run in foreground</td>
+		</tr>
+		<tr>
+			<td>LOG_LEVEL_DAEMON</td>
+			<td> </td>
+			<td> </td>
+			<td>log level for the server run as a service</td>
+		</tr>
+		<tr>
+			<td>SMS_MIN_LENGTH</td>
+			<td> </td>
+			<td>1</td>
+			<td>
+				<p>type any number, e.g. 40 to process only 40+ long messages.<br />
+					sms server doesn't process empty messages for default.<br />
+					to enable processing empty messages, set the setting to 0.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>SMS_MAX_LENGTH</td>
+			<td> </td>
+			<td>160</td>
+			<td>feel free to set it to 250 and higher to turn long messages support on.</td>
+		</tr>
+		<tr>
+			<td>CONVERT_TO_7BIT</td>
+			<td> </td>
+			<td>false</td>
+			<td>if true, every email is converted to GSM7 for maximum chars per message</td>
+		</tr>
+		<tr>
+			<td>SCOPES</td>
+			<td> </td>
+			<td> </td>
+			<td>gmail api spe</td>
+		</tr>
+		<tr>
+			<td>CLIENT_SECRET_FILE</td>
+			<td> </td>
+			<td> </td>
+			<td>gmail api specific, you chose this value when enabling gmail api</td>
+		</tr>
+		<tr>
+			<td>APPLICATION_NAME</td>
+			<td> </td>
+			<td> </td>
+			<td>gmail api specific, you chose this value when enabling gmail api</td>
+		</tr>
+		<tr>
+			<td>VIRTUAL_PORT_SETUP_COMMAND</td>
+			<td> </td>
+			<td> </td>
+			<td>leave empty for locally attached device<br />
+				or place here a proper socat command which works on your system. Test the command in the terminal first.
+			</td>
+		</tr>
+		<tr>
+			<td>PORT</td>
+			<td> </td>
+			<td>/dev/ttyUSB0</td>
+			<td>
+				<p>make sure you use the correct device dev path. For example, Huawei modems make more device paths. You may want use the last one.</p>
+				<p>ls /dev/ttyUSB*</p>
+			</td>
+		</tr>
+		<tr>
+			<td>BAUDRATE</td>
+			<td> </td>
+			<td>115200</td>
+			<td>
+				<p>Current devices work on wide range of speeds, 115200 is a safe bet, there's no point in setting higher speeds.<br />
+					Mikrotik users: If you are going to attach the modem to your Mikrotik and access it remotely, use 9600. My mikrotik doesn't support any other serial baud rate anyway. There's no apparent difference in real-life speed.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>PIN</td>
+			<td> </td>
+			<td> </td>
+			<td>leave empty if you don't use PIN<br />
+				PIN setting is suppported, but not properly tested.
+			</td>
+		</tr>
+		<tr>
+			<td>SMS_HANDLER_MODE</td>
+			<td> </td>
+			<td> </td>
+			<td>process this command as you wish in your SMS handler</td>
+		</tr>
+		<tr>
+			<td>SMS_HANDLER_REDIRECT_TO</td>
+			<td> </td>
+			<td> </td>
+			<td> </td>
+		</tr>
+		<tr>
+			<td>SMS_HANDLER_CONVERT_TO_7BIT</td>
+			<td> </td>
+			<td> </td>
+			<td> </td>
+		</tr>
+		<tr>
+			<td>SMS_HANDLER_PROCESS_SMS_PREVIOUSLY_STORED_ON_SIM</td>
+			<td>all | unread | (empty)</td>
+			<td> </td>
+			<td>Process also all sms stored on modem/sim, that might be received while sms server was not running.</td>
+		</tr>
+	</tbody>
+</table>
 
 ### first run
 
@@ -188,6 +332,18 @@ see log file:
 ```bash
 $ tail -f /var/log/gmail2sms.log 
 ```
+
+### how does it work
+
+Send an email to your API connected gmail mailbox and wait for the SMS server to process it.
+
+1. Make sure the sender is on a whitelist (see `GMAIL_QUERY` setting).
+2. Put SMS destination number into email *subject*.
+3. Put SMS content into email *body* and send it.
+
+SMS server polls the inbox every `GMAIL_POLLING_INTERVAL` and resends valid incoming message to a mobile number. The email is then set as read.
+
+Default email handler can also read MIME messages, it reads the plaintext part out of the multipart email.
 
 ### troubleshooting
 
