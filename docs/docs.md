@@ -39,33 +39,33 @@ Future versions will have this included.
 #### remote side (modem)
 Share modem over LAN.
 
-**share from mikrotik routeros**
-http://babcuvpisecek.com/nezarazene/access-a-gsm-modem-connected-to-mikrotik-device-over-lan/
-
+##### share from Mikrotik RouterOS
 **share from debian**
+
 * install ser2net
 * edit setting file /etc/ser2net.conf
-* ```
-  3002:telnet:600:/dev/ttyUSB2:115200 8DATABITS NONE 1STOPBIT banner
-  ```
-* then run
-  ```bash
-  ser2net -c /etc/ser2net.conf -n
-  ```
+* ```3002:telnet:600:/dev/ttyUSB2:115200 8DATABITS NONE 1STOPBIT banner  ```
+* then run ```ser2net -c /etc/ser2net.conf -n```
+
 
 #### local side (smsserver)
 Setup virtual serial port (pseudo terminal).
 
-Try creating virtual port manually first.
+1. Setup virtual port manually first
+   http://babcuvpisecek.com/nezarazene/access-a-gsm-modem-connected-to-mikrotik-device-over-lan/
+2. If it's working OK, then place the command to INI setting file – to a `VIRTUAL_PORT_SETUP_COMMAND` setting.
+3. SMS server will now setup the virtual port automatically every time it starts.
 
-**debian**
+##### debian
+
 ```bash
 socat -d -d -d -d pty,link=/dev/vmodem0,raw tcp:<IP>:<PORT>
 socat pty,link=/dev/vmodem0,raw tcp:<IP>:<PORT> &
 screen /dev/vmodem0 9600
 ```
 
-**OS X**
+##### OS X
+
 ```bash
 brew install socat
 sudo socat -d -d -d -d pty,link=/dev/vmodem0,raw tcp:<IP>:<PORT>
@@ -74,8 +74,6 @@ sudo screen /dev/vmodem0 9600
 ```
 
 I had a small issue with `screen` on os x, I had to leave `screen` with `Ctrl+A K` instead of `Ctrl+A D`, and it kills socat too, so you must start socat again every time.
-
-If it's working, then place the command to INI setting file. SMS server will now setup the virtual port automatically every time it starts.
 
 
 ## Requirements

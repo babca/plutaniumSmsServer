@@ -1,0 +1,37 @@
+; Preposila prijate maily na mobilni cisla uvedena v predmetu mailu + presmerovava prijate sms na zvolene telefonni cislo
+
+[gmail2sms]
+GMAIL_POLLING_INTERVAL = 45
+GMAIL_QUERY = label:inbox is:unread from:(lepsizubar@lepsizubar.cz OR vojta.babic@gmail.com OR kancelar@vasehospodynka.cz)
+LOG_FILE = /var/log/gmail2sms.log
+LOG_FILE_SMS = /var/log/sent_sms.log
+LOG_LEVEL_FOREGROUND = debug
+LOG_LEVEL_DAEMON = info
+;SMS_MIN_LENGTH = 1 ; default 1, defaultne nepreposila prazdne SMS
+SMS_MAX_LENGTH = 250 ; default 160, lze zadat i vetsi >160 pro dlouhe sms. Pozor toto omezeni na pocet znaku neni zatim uplne presne, nektere gsm-7 znaky jsou escapovane a zaberou dva znaky v SMS a zas tak dopodrobna to udelany neni.
+CONVERT_TO_7BIT = False
+
+; If modifying these scopes (now placed in the settings file), delete your previously saved credentials at ~/.credentials/gmail-python-quickstart.json AND run quickstart.py to generate new token 
+
+[gmail_api]
+APPLICATION_NAME = sms
+SCOPES = https://mail.google.com/
+CLIENT_SECRET_FILE = client_secret.json
+CREDENTIALS_FILE = gmail_credentials.json
+
+; nastaveni GSM modemu. Huawei asi obvykle /dev/ttyUSB2. PIN jsem nezkousel, ale melo by fungovat. Vychozi hodnota pro PIN je None
+; PIN setting is suppported, but not properly tested. It is possible that program will be restarting if wrong PIN is provided and it blocks SIM card after 3 attepts. Don't use if you don't know your PUK.
+
+[modem]
+VIRTUAL_PORT_SETUP_COMMAND = socat pty,link=/dev/vmodem0,raw tcp:192.168.88.1:10000
+PORT = /dev/vmodem0
+BAUDRATE = 9600
+PIN = 
+
+; preposilat vsechny prijate SMS na dane telefonni cislo. MODES: keywords,redirect / reply_demo / redirect / prazdne, process_sms: all / unread / prazdne. Pozor unread muze zpusobit ze program zrpavu precetl a crashnul a pak stale zabira pamet. To je treba mit osetreny v tom pripade.
+
+[incomingSmsHandler]
+SMS_HANDLER_MODE = keywords,redirect
+SMS_HANDLER_REDIRECT_TO = +420776303315
+SMS_HANDLER_CONVERT_TO_7BIT = False
+SMS_HANDLER_PROCESS_SMS_PREVIOUSLY_STORED_ON_SIM = all

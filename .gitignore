@@ -1,0 +1,6 @@
+
+*.pyc
+
+*.log
+
+plutaniumSmsServer/client_secret.json
