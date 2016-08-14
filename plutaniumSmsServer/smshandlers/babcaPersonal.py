@@ -174,7 +174,7 @@ def incomingSmsHandler(sms):
             smsContent     = u"%s [Preposlano od: %s]" % (sms.text, sms.number)
             #smsContent     = u"%s (Preposlano od: 1234567890098)" % (sms.text)
             #smsContent     = u"%s" % (sms.text)
-            logging.info("Not SMS keyword found -> redirecting SMS to %s!" % myconfig['redirectSmsTo'])
+            logging.info("Not SMS keyword found -> redirecting SMS to %s!" % myconfig['incomingSmsHandlerSetup']['redirectSmsTo'])
     
     elif (myconfig['incomingSmsHandlerSetup']['smsProcessingMode'] == 'redirect'):
         # HANDLE SMS REDIRECT MODE
