@@ -1,0 +1,90 @@
+{
+"general":
+	{
+	"selectModem": 1, 
+	"selectGmailApiSetup": 1, 
+	"selectLoggingSetup": 1, 
+	"selectIncomingGmailHandlerSetup": 2, 
+	"selectIncomingSmsHandlerSetup": 2, 
+	"gmailPollingInterval": 45
+	}, 
+"modems":
+	[{
+		"id": 1, 
+		"name": "my modem hooked on a mikrotik device", 
+		"virtualPortInitCommand": "socat pty,link=/dev/vmodem0,raw tcp:192.168.88.1:10000", 
+		"virtualPortRestartInterval": 3600, 
+		"port": "/dev/vmodem0", 
+		"baudrate": 9600, 
+		"pin": null, 
+		"comment": "PIN setting is not properly tested. It is possible that program will be restarting if wrong PIN is provided and it blocks SIM card after 3 attepts. Don't use if you don't know your PUK."
+	}, 
+	{
+		"id": 2, 
+		"name": "my locally connected modem", 
+		"port": "/dev/ttyUSB2", 
+		"baudrate": 9600, 
+		"pin": null
+	},
+	{
+		"id": 3, 
+		"name": "my remote modem attached to a local port (started with socat manually)", 
+		"port": "/dev/vmodem0", 
+		"baudrate": 9600, 
+		"pin": null
+	}], 
+"gmailApiSetups":
+	[{
+		"id": 1, 
+		"applicationName": "sms", 
+		"scopes": "https://mail.google.com/", 
+		"clientSectetFilename": "client_secret.json", 
+		"credentialsJsonFilename": "gmail_credentials.json",
+		"desc": "If modifying these scopes (now placed in the settings file), delete your previously saved credentials at ~/.credentials/gmail-python-quickstart.json AND run quickstart.py to generate new token"
+	}], 
+"loggingSetups":
+	[{
+		"id": 1, 
+		"mainLogFilename": "/var/log/gmail2sms.log", 
+		"sentSmsLogFilename": "/var/log/sent_sms.log", 
+		"foregroundLogLevel": "debug", 
+		"daemonLogLevel": "info"
+	}], 
+"incomingGmailHandlerSetups": 
+	[{
+		"id": 1, 
+		"gmailHandlerFilename": "processFirstUnreadGmailMessage", 
+		"gmailQuery": "label:inbox is:unread", 
+		"setProcessedEmail": "asRead", 
+		"convertTextTo7bit": false, 
+		"smsMinLength": 0, 
+		"smsMaxLength": 250, 
+		"desc": "automatically forwards gmails messages to a number specified in the subject"
+	}, 
+	{
+		"id": 2, 
+		"gmailHandlerFilename": "processFirstUnreadGmailMessage", 
+		"gmailQuery": "label:inbox is:unread from:(lepsizubar@lepsizubar.cz OR vojta.babic@gmail.com OR kancelar@vasehospodynka.cz)", 
+		"setProcessedEmail": "asRead", 
+		"convertTextTo7bit": false, 
+		"smsMinLength": 0, 
+		"smsMaxLength": 250
+	}], 
+"incomingSmsHandlerSetups":
+	[{
+		"id": 1, 
+		"smsHandlerFilename": "replyDemo", 
+		"convertTextTo7bit": false, 
+		"processStoredSms": "all", 
+		"desc": "simple reply demo"
+	}, 
+	{
+		"id": 2, 
+		"smsHandlerFilename": "babcaPersonal", 
+		"smsProcessingMode": "keywords,redirect", 
+		"redirectSmsTo": "+420776303315", 
+		"convertTextTo7bit": false, 
+		"processStoredSms": "all", 
+		"desc": "automatically forwards sms messages to a predefined number. MODES: keywords,redirect / reply_demo / redirect / prazdne, process_sms: all / unread / prazdne. Pozor unread muze zpusobit ze program zrpavu precetl a crashnul a pak stale zabira pamet. To je treba mit osetreny v tom pripade."
+	}]
+}

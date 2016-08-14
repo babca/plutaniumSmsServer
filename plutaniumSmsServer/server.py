@@ -71,12 +71,14 @@ class plutaniumSmsServerDaemonizable:
 		self.running = True
 
 		# (0) SETUP VIRTUAL SERIAL PORT FOR MODEM
-		if (myconfig['VIRTUAL_PORT_SETUP_COMMAND']):
+		if "virtualPortInitCommand" in myconfig['modem']:
 			try:
-				virtualSerialPortInstance = virtualSerialPort(myconfig['VIRTUAL_PORT_SETUP_COMMAND'])
+				virtualSerialPortInstance = virtualSerialPort(myconfig['modem']['virtualPortInitCommand'])
 				virtualSerialPortInstance.start()
 			except:
 				pass
+		else:
+			virtualSerialPortInstance = None
 
 		# (1) SETUP GMAIL ACCESS
 		logging.info('Initializing GMAIL access...')
@@ -85,27 +87,27 @@ class plutaniumSmsServerDaemonizable:
 		except RuntimeError as e:
 			print(str(e))
 			logging.critical(str(e))
-			if (virtualSerialPortInstance):
+			if (virtualSerialPortInstance is not None):
 				virtualSerialPortInstance.stop()
 			#sys.exit(1)
 			self.stop()
 		
 		######################################################################################################################################################
 		# (2) SETUP GSM MODEM + bind a "smsReceived" callback + poll gmail inbox
-		logging.info('Initializing GSM modem on {0} port @ {1} speed...'.format(myconfig['PORT'], myconfig['BAUDRATE']))
-		modem = GsmModem(myconfig['PORT'], myconfig['BAUDRATE'], smsReceivedCallbackFunc=self.incomingSmsHandler)
+		logging.info('Initializing GSM modem on {0} port @ {1} speed...'.format(myconfig['modem']['port'], myconfig['modem']['baudrate']))
+		modem = GsmModem(myconfig['modem']['port'], myconfig['modem']['baudrate'], smsReceivedCallbackFunc=self.incomingSmsHandler)
 		modem.smsTextMode = False
 
 		while self.running:
 			# start of gsm init loop
 			try:
-				modem.connect(myconfig['PIN'])
+				modem.connect(myconfig['modem']['pin'])
 			except SerialException:
-				logging.error('Error: Cannot connect to modem on serial port %s @ %s. Trying again in %d sec...' % (myconfig['PORT'], myconfig['BAUDRATE'], myconfig['GSM_MODEM_RETRY_WAIT_TIME']))
-				time.sleep(myconfig['GSM_MODEM_RETRY_WAIT_TIME'])
+				logging.error('Error: Cannot connect to modem on serial port %s @ %s. Trying again in %d sec...' % (myconfig['modem']['port'], myconfig['modem']['baudrate'], myconfig['modem']['errorRetryWaitTime']))
+				time.sleep(myconfig['modem']['errorRetryWaitTime'])
 			except TimeoutException:
-				logging.error('Error: Serial device %s @ %s timeout. Trying again in %d sec...' % (myconfig['PORT'], myconfig['BAUDRATE'], myconfig['GSM_MODEM_RETRY_WAIT_TIME']))
-				time.sleep(myconfig['GSM_MODEM_RETRY_WAIT_TIME'])
+				logging.error('Error: Serial device %s @ %s timeout. Trying again in %d sec...' % (myconfig['modem']['port'], myconfig['modem']['baudrate'], myconfig['modem']['errorRetryWaitTime']))
+				time.sleep(myconfig['modem']['errorRetryWaitTime'])
 			except PinRequiredError:
 				# Fatal error
 				logging.critical('Error: SIM card PIN required. Please provide PIN in the config file.')
@@ -130,9 +132,9 @@ class plutaniumSmsServerDaemonizable:
 					logging.info('We are now handling all incoming SMS messages.') 
 
 					try:
-						if (myconfig['SMS_HANDLER_PROCESS_SMS_PREVIOUSLY_STORED_ON_SIM'] == "all"):
+						if (myconfig['incomingSmsHandlerSetup']['processStoredSms'] == "all"):
 							modem.processStoredSms(unreadOnly=False)
-						elif (myconfig['SMS_HANDLER_PROCESS_SMS_PREVIOUSLY_STORED_ON_SIM'] == "unread"):
+						elif (myconfig['incomingSmsHandlerSetup']['processStoredSms'] == "unread"):
 							modem.processStoredSms(unreadOnly=True)
 					except Exception as e:
 						logging.critical("Nastal problem pri zpracovani drivejsich neprectenych SMS:")
@@ -146,7 +148,7 @@ class plutaniumSmsServerDaemonizable:
 								# start of main gmail loop
 								logging.debug('Checking incoming emails...') 
 								self.incomingGmailHandler(gmailService, modem)
-								time.sleep(myconfig['GMAIL_POLLING_INTERVAL'])
+								time.sleep(myconfig['general']['gmailPollingInterval'])
 								# end of main gmail loop
 						except KeyboardInterrupt:
 							#sys.exit(0)
@@ -163,7 +165,7 @@ class plutaniumSmsServerDaemonizable:
 				finally:
 					print("Bye.")
 					modem.close()
-					if (virtualSerialPortInstance):
+					if (virtualSerialPortInstance is not None):
 						virtualSerialPortInstance.stop()
 						
 			finally:
@@ -250,21 +252,21 @@ class plutaniumSmsServer:
 
 		if self.daemonAction == 'fg':
 			print ('plutaniumSmsServer running in no-daemon mode.')
-			print ('  see log in another terminal with the command: tail -f '+myconfig['LOG_FILE'])
+			print ('  see log in another terminal with the command: tail -f '+myconfig['loggingSetup']['mainLogFilename'])
 			print ('  stdout is pretty minimal, it shows new incoming emails and sms messages.')
 			print ('  A dot means that Gmail inbox has been checked and no new messages has been found.')
 			
 			daemon = daemonUtils.NoDaemon(daemonizable=plutaniumSmsServerDaemonizableInstance)
-			daemon.start(log_file=myconfig['LOG_FILE'], dump_stack_trace=True)
+			daemon.start(log_file=myconfig['loggingSetup']['mainLogFilename'], dump_stack_trace=True)
 		else:
 			daemon = daemonUtils.Daemon(daemonizable=plutaniumSmsServerDaemonizableInstance)
 
 		if self.daemonAction == 'start':
-			daemon.start(log_file=myconfig['LOG_FILE'], dump_stack_trace=True)
+			daemon.start(log_file=myconfig['loggingSetup']['mainLogFilename'], dump_stack_trace=True)
 		elif self.daemonAction == 'stop':
 			daemon.stop()
 		elif self.daemonAction == 'reload':
-			daemon.reload(log_file=myconfig['LOG_FILE'], dump_stack_trace=True)
+			daemon.reload(log_file=myconfig['loggingSetup']['mainLogFilename'], dump_stack_trace=True)
 		elif self.daemonAction == 'status':
 			daemon.status()
 

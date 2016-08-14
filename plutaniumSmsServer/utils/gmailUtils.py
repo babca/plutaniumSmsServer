@@ -35,11 +35,11 @@ def get_credentials(cwd=os.getcwd()):
         Credentials, the obtained credential.
     """
 
-    credential_path = os.path.join(cwd, myconfig['CREDENTIALS_FILE'])
-    logging.error('%s %s %s ' % (credential_path, cwd, myconfig['CREDENTIALS_FILE']))
+    credential_path = os.path.join(cwd, myconfig['gmailApiSetup']['credentialsJsonFilename'])
+    logging.info('get_credentials(): %s %s %s ' % (credential_path, cwd, myconfig['gmailApiSetup']['credentialsJsonFilename']))
     store = oauth2client.file.Storage(credential_path)
     credentials = store.get()
-    logging.error(credentials)
+    
     if not credentials or credentials.invalid:
         raise RuntimeError("No Gmail credentials file found, or credentials file is invalid. The CREDENTIALS_FILE setting is now set to '%s'. Check the path, or create a new credentials file with an utility for that purpose." % credential_path)
     

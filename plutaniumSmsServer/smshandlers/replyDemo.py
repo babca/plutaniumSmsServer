@@ -36,7 +36,7 @@ def incomingSmsHandler(sms):
         smsContent     = u'Huurray! Your text: "{0}{1}"'.format(sms.text[:20], '...' if len(sms.text) > 20 else '')
         
         # convert to GSM 7-bit encoded string from original text, if required by settings, else leave as is
-        smsContent     = smsStringUtils.stripNonGsm7Characters(smsStringUtils.strip_accents(smsContent)) if (myconfig['SMS_HANDLER_CONVERT_TO_7BIT'] is True) else smsContent
+        smsContent     = smsStringUtils.stripNonGsm7Characters(smsStringUtils.strip_accents(smsContent)) if (myconfig['smsHandlerSetup']['convertTextTo7bit'] is True) else smsContent
 
         logging.info("Reply mode = replying to the received SMS now!")
     

@@ -66,7 +66,7 @@ def setup_logging(log_file, logging_level):
         return expanded_file_name
 
     log_file_paths = [log_file] if log_file else [
-        myconfig['LOG_FILE'] ]
+        myconfig['loggingSetup']['mainLogFilename'] ]
     for file_name in log_file_paths:
         try:
             return configure_logging(file_name)
@@ -134,8 +134,8 @@ class NoDaemon:
         NoDaemon.instance.daemonizable.reload()
 
     def start(self, log_file=None, dump_stack_trace=False):
-        setup_logging(log_file, myconfig['LOG_LEVEL_FOREGROUND']) # original logger, setups root logger, without custom name
-        setup_logger('sent_sms', myconfig['LOG_FILE_SMS'], logging.DEBUG) # my multilogger, always log sms (level INFO)
+        setup_logging(log_file, myconfig['loggingSetup']['foregroundLogLevel']) # original logger, setups root logger, without custom name
+        setup_logger('sent_sms', myconfig['loggingSetup']['sentSmsLogFilename'], logging.DEBUG) # my multilogger, always log sms (level INFO)
 
         while not NoDaemon.exit_flag:
             try:
@@ -230,8 +230,8 @@ class Daemon:
         
         # pidfile can now be used to create DaemonContext:
         with DaemonContext(pidfile=pidfile, signal_map=self.signal_map):
-            setup_logging(log_file, myconfig['LOG_LEVEL_DAEMON']) # original logger, setups root logger, without custom name
-            setup_logger('sent_sms', myconfig['LOG_FILE_SMS']) # my multilogger, always log sms (level INFO)
+            setup_logging(log_file, myconfig['loggingSetup']['daemonLogLevel']) # original logger, setups root logger, without custom name
+            setup_logger('sent_sms', myconfig['loggingSetup']['sentSmsLogFilename']) # my multilogger, always log sms (level INFO)
 
             while not Daemon.exit_flag:
                 try:

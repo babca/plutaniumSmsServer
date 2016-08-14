@@ -19,9 +19,7 @@ import dateutil.parser
 import json
 import urllib
 
-#
 # babca's personal sms handler (czech language used)
-#
 
 def incomingSmsHandler(sms):
     loggerSentSMS = logging.getLogger('sent_sms') # a nize v kodu je i prosty logging, ten miri na defaultni logger ktery nemame nazvany.
@@ -34,7 +32,7 @@ def incomingSmsHandler(sms):
     smsDestination = None
     smsContent     = None
 
-    if (myconfig['SMS_HANDLER_MODE'] == 'keywords,redirect'):
+    if (myconfig['incomingSmsHandlerSetup']['smsProcessingMode'] == 'keywords,redirect'):
         smsDestination = sms.number # default "reply", is overwritten with redirect number if keyword is not recognized
         pattern = re.compile("^(ZRUS|ZRUSIT)(?:[\s]*(\d))*$", re.IGNORECASE)
 
@@ -172,38 +170,38 @@ def incomingSmsHandler(sms):
                 smsContent     = u"Zadali jste nespravne cislo terminu. Vyzadejte si seznam terminu ke zruseni odeslanim sms s textem ZRUS."
 
         else:
-            smsDestination = myconfig['SMS_HANDLER_REDIRECT_TO']
+            smsDestination = myconfig['incomingSmsHandlerSetup']['redirectSmsTo']
             smsContent     = u"%s [Preposlano od: %s]" % (sms.text, sms.number)
             #smsContent     = u"%s (Preposlano od: 1234567890098)" % (sms.text)
             #smsContent     = u"%s" % (sms.text)
-            logging.info("Not SMS keyword found -> redirecting SMS to %s!" % myconfig['SMS_HANDLER_REDIRECT_TO'])
+            logging.info("Not SMS keyword found -> redirecting SMS to %s!" % myconfig['redirectSmsTo'])
     
-    elif (myconfig['SMS_HANDLER_MODE'] == 'redirect'):
+    elif (myconfig['incomingSmsHandlerSetup']['smsProcessingMode'] == 'redirect'):
         # HANDLE SMS REDIRECT MODE
-        smsDestination = myconfig['SMS_HANDLER_REDIRECT_TO']
+        smsDestination = myconfig['incomingSmsHandlerSetup']['redirectSmsTo']
         smsContent     = u"%s [Preposlano od: %s]" % (sms.text, sms.number)
         logging.info("Redirection mode = redirecting the received SMS now!")
 
-    elif (myconfig['SMS_HANDLER_MODE'] == 'reply_demo'):
+    elif (myconfig['incomingSmsHandlerSetup']['smsProcessingMode'] == 'reply_demo'):
         # HANDLE SMS REPLY DEMO MODE
         smsDestination = sms.number
         smsContent     = u'Juhuu! Odpovidam zpet na prijatou SMS: "{0}{1}"'.format(sms.text[:20], '...' if len(sms.text) > 20 else '')
         logging.info("Reply mode = replying to the received SMS now!")
 
-    elif (myconfig['SMS_HANDLER_MODE'] == ''):
+    elif (myconfig['incomingSmsHandlerSetup']['smsProcessingMode'] == ''):
         logging.info("Do nothing. Program is se to not process incoming SMS messages.")
 
     else:
-        logging.error("Invalid SMS_HANDLER_MODE setting.")
-        raise ValueError("Invalid SMS_HANDLER_MODE setting.")
+        logging.error("Invalid smsProcessingMode setting.")
+        raise ValueError("Invalid smsProcessingMode setting.")
 
 
-    if (smsDestination is not None and smsContent is not None and myconfig['SMS_HANDLER_MODE'] != ''):
+    if (smsDestination is not None and smsContent is not None and myconfig['incomingSmsHandlerSetup']['smsProcessingMode'] != ''):
         try:
             # zkontrolujeme odesilatele
             if (smsStringUtils.isDestinationNumberPermitted(smsDestination)):
                 # stripneme diakritiku / convert to GSM 7-bit encoded string from original text, if required by settings, else leave as is
-                smsContent = smsStringUtils.stripNonGsm7Characters(smsStringUtils.strip_accents(smsContent)) if (myconfig['SMS_HANDLER_CONVERT_TO_7BIT'] is True) else smsContent
+                smsContent = smsStringUtils.stripNonGsm7Characters(smsStringUtils.strip_accents(smsContent)) if (myconfig['incomingSmsHandlerSetup']['convertTextTo7bit'] is True) else smsContent
                 
                 # nachystanou odpoved nyni odesleme
                 sms.sendSms(smsDestination, smsContent)
@@ -220,11 +218,6 @@ def incomingSmsHandler(sms):
             sentSMS_numberOfSMS, sentSMS_charactersUsed, sentSMS_charactersRemaining = smsStringUtils.smsCharacterCounter(smsContent)
             loggerSentSMS.info(u"SMS sent:     [%s] %s [[%s,%s,%s]]" % (smsDestination, smsContent, sentSMS_numberOfSMS, sentSMS_charactersUsed, sentSMS_charactersRemaining)) # mezery zarovnane podle "SMS received"
 
-
-
-#
-# helper functions
-#
 
 
 def ajaxReformatDatetime(dateString):
