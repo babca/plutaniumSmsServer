@@ -23,8 +23,8 @@ import urllib
 
 def incomingSmsHandler(sms):
     loggerSentSMS = logging.getLogger('sent_sms') # a nize v kodu je i prosty logging, ten miri na defaultni logger ktery nemame nazvany.
-
-    print(u'== SMS message received ==\nFrom: {0}\nTime: {1}\nMessage:\n{2}\n'.format(sms.number, sms.time, sms.text))
+    
+    print(u'== SMS message received ==\nFrom: {0}\nTime: {1}\nMessage:\n{2}\n'.format(sms.number, sms.time, sms.text).encode('utf-8'))
     receivedSMS_numberOfSMS, receivedSMS_charactersUsed, receivedSMS_charactersRemaining = smsStringUtils.smsCharacterCounter(sms.text)
     logging.info      (u"SMS received: [%s] %s [[%s,%s,%s]]" % (sms.number, sms.text, receivedSMS_numberOfSMS, receivedSMS_charactersUsed, receivedSMS_charactersRemaining))
     loggerSentSMS.info(u"SMS received: [%s] %s [[%s,%s,%s]]" % (sms.number, sms.text, receivedSMS_numberOfSMS, receivedSMS_charactersUsed, receivedSMS_charactersRemaining))
