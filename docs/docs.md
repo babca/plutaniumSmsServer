@@ -164,7 +164,7 @@ If it fails to connect to /dev/ttyUSB2, then there is a problem with PySerial mo
 
 ### check setting file
 
-Server settings are stored in `settings.ini` file.
+Server settings are stored in `config.json` file.
 
 <table>
 	<thead>

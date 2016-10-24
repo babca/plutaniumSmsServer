@@ -80,18 +80,18 @@ def smsCharacterCounter(plaintext):
     Takes Unicode string as an input.
     """
 
-    gsm7bit = isEncodableToGsm7Alphabet(plaintext)
+    gsm7alphabet = isEncodableToGsm7Alphabet(plaintext)
     length = len(plaintext) # sms length. The number will include all sms escape characters too, see below.
     plaintext = plaintext.encode("utf-8") # pro byte-by-byte operace
 
-    if gsm7bit:
+    if gsm7alphabet:
         # 7-bit encoding
-        # some chars need to be escaped (+escape char)
+        # some chars need to be escaped (+escape char) so they occupy one extra character
         for char in plaintext:
             if char in GSM7_EXTENDED:
                 length+=1
 
-        # count # of SMS
+        # count # of SMS parts
         if (length <= 160):
             numberOfSMS = 1
             charactersRemaining = 160 - length
@@ -101,7 +101,7 @@ def smsCharacterCounter(plaintext):
 
     else:
         # USC-2 16-bit encoding
-        # count # of SMS
+        # count # of SMS parts
         if (length <= 70):
             numberOfSMS = 1
             charactersRemaining = 70 - length
@@ -110,6 +110,38 @@ def smsCharacterCounter(plaintext):
             charactersRemaining = 67 * numberOfSMS - length
 
     return numberOfSMS, length, charactersRemaining
+
+def smsCropString(plaintext, maximum, cropMode = "characters", gsm7alphabet = True):
+    """
+    Crop sms string to maximum number of characters
+    Crop sms string to maximum number of SMS parts (not implemented yet)
+    """
+
+    length = len(plaintext) # sms length. The number will include all sms escape characters too, see below.
+    #plaintext = plaintext.encode("utf-8") # pro byte-by-byte operace
+
+    if gsm7alphabet:
+        # 7-bit encoding
+        croppedtext = u''
+
+        for char in plaintext:
+            # add a character to croppedtext
+            croppedtext += char
+            length+=1
+
+            # some chars need to be escaped (+escape char) so they occupy one extra character
+            if char in GSM7_EXTENDED:
+                length+=1
+
+            # if we reach the maximum, then stop the iteration and return the croppedtext
+            if length is maximum:
+                return croppedtext
+                break
+
+    else:
+        # USC-2 16-bit encoding
+        # simply return stripped string
+        return plaintext[:maximum]
 
 
 

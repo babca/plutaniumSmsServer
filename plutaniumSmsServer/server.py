@@ -102,7 +102,7 @@ class plutaniumSmsServerDaemonizable:
 			# start of gsm init loop
 			try:
 				modem.connect(myconfig['modem']['pin'])
-			except SerialException:
+			except serial.SerialException:
 				logging.error('Error: Cannot connect to modem on serial port %s @ %s. Trying again in %d sec...' % (myconfig['modem']['port'], myconfig['modem']['baudrate'], myconfig['modem']['errorRetryWaitTime']))
 				time.sleep(myconfig['modem']['errorRetryWaitTime'])
 			except TimeoutException:
@@ -147,8 +147,8 @@ class plutaniumSmsServerDaemonizable:
 							while self.running:
 								# start of main gmail loop
 								logging.debug('Checking incoming emails...') 
-								self.incomingGmailHandler(gmailService, modem)
-								time.sleep(myconfig['general']['gmailPollingInterval'])
+								newMessagesCount = self.incomingGmailHandler(gmailService, modem)
+								time.sleep(myconfig['general']['gmailQueueWaitingPeriod'] if newMessagesCount > 0 else myconfig['general']['gmailPollingInterval'])
 								# end of main gmail loop
 						except KeyboardInterrupt:
 							#sys.exit(0)
@@ -173,8 +173,8 @@ class plutaniumSmsServerDaemonizable:
 
 			# end of gsm init loop
 			# normally we won't reach this place, but when a non-fatal error happens
-			# (like 'No modem found', 'No GSM signal', etc.), we can continue the loop to try again here a few seconds
-			# and try it again in the new iteration of the main loop
+			# (like 'No modem found', 'No GSM signal', etc.), we can continue the loop to
+			# try it again in the new iteration of the main loop
 			
 		# TODO - move kill socat here. Move socat init to try finally
 
@@ -252,9 +252,11 @@ class plutaniumSmsServer:
 
 		if self.daemonAction == 'fg':
 			print ('plutaniumSmsServer running in no-daemon mode.')
-			print ('  see log in another terminal with the command: tail -f '+myconfig['loggingSetup']['mainLogFilename'])
-			print ('  stdout is pretty minimal, it shows new incoming emails and sms messages.')
-			print ('  A dot means that Gmail inbox has been checked and no new messages has been found.')
+			print ('  you can monitor logs in another terminal with the commands:')
+			print ('  general log:   tail -f '+myconfig['loggingSetup']['mainLogFilename'])
+			print ('  sent sms log:  tail -f '+myconfig['loggingSetup']['sentSmsLogFilename'])
+			print ('  stdout is pretty minimal, it prints new incoming emails and sms messages,')
+			print ('  a dot means that Gmail inbox has been checked and no new messages has been found.')
 			
 			daemon = daemonUtils.NoDaemon(daemonizable=plutaniumSmsServerDaemonizableInstance)
 			daemon.start(log_file=myconfig['loggingSetup']['mainLogFilename'], dump_stack_trace=True)
@@ -281,7 +283,7 @@ if __name__ == '__main__':
 
 ##
 ## TODO: jwt secret token ---> config file
-## TODO: remove remaining czech commnents
+## TODO: translate remaining commnents in czech language to english
 ## TODO: use custom exceptions in the code and clean it
 ## TODO: kill already running duplicate instances of socat (previous running socat with same command)
 ## TODO: sql server

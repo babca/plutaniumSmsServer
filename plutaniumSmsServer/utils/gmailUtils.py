@@ -175,3 +175,8 @@ def ModifyMessage(service, user_id, msg_id, msg_labels):
     except errors.HttpError as error:
         print ('An error occurred: %s' % error)
 
+
+def SetAsRead(service, user_id, msg_id):
+    """Modify the message as read """
+    
+    ModifyMessage(service, "me", msg_id, {'removeLabelIds': ['UNREAD'], 'addLabelIds': []})

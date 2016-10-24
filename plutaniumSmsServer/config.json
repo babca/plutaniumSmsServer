@@ -6,7 +6,8 @@
 	"selectLoggingSetup": 1, 
 	"selectIncomingGmailHandlerSetup": 2, 
 	"selectIncomingSmsHandlerSetup": 2, 
-	"gmailPollingInterval": 45
+	"gmailPollingInterval": 45,
+	"gmailQueueWaitingPeriod": 0
 	}, 
 "modems":
 	[{
@@ -38,7 +39,6 @@
 		"id": 1, 
 		"applicationName": "sms", 
 		"scopes": "https://mail.google.com/", 
-		"clientSectetFilename": "client_secret.json", 
 		"credentialsJsonFilename": "gmail_credentials.json",
 		"desc": "If modifying these scopes (now placed in the settings file), delete your previously saved credentials at ~/.credentials/gmail-python-quickstart.json AND run quickstart.py to generate new token"
 	}], 
@@ -58,7 +58,7 @@
 		"setProcessedEmail": "asRead", 
 		"convertTextTo7bit": false, 
 		"smsMinLength": 0, 
-		"smsMaxLength": 250, 
+		"smsMaxLength": 335, 
 		"desc": "automatically forwards gmails messages to a number specified in the subject"
 	}, 
 	{
@@ -68,7 +68,7 @@
 		"setProcessedEmail": "asRead", 
 		"convertTextTo7bit": false, 
 		"smsMinLength": 0, 
-		"smsMaxLength": 250
+		"smsMaxLength": 335
 	}], 
 "incomingSmsHandlerSetups":
 	[{

@@ -85,11 +85,6 @@ def incomingSmsHandler(sms):
 
                     i = 0
                     for termin in jsonArray:
-                        logging.error("JUHU %s" % termin)
-                        logging.error("JAJAJA %s" % termin['termin_date'])
-                        logging.error("JAJAJA %s" % termin['termin_date']['date'])
-                        logging.error("JEOU")
-                        
                         smsContent += u"\nZRUS %s: %s" % (i+1, ajaxReformatDatetime(termin['termin_date']['date']))
                         i += 1
 

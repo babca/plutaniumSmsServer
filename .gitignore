@@ -1,6 +1,7 @@
 
 *.pyc
-
 *.log
-
-plutaniumSmsServer/client_secret.json
+.DS_Store
+._*
+plutaniumSmsServer/gmail_credentials.json
+TODO.md
